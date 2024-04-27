@@ -1,11 +1,8 @@
 package de.ltheinrich.tg2.qmc;
 
-import de.ltheinrich.tg2.seg.SegTable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class QmcUtils {
     static void printGroup(QuineMcCluskey qmc, int n) {
@@ -33,25 +30,12 @@ public class QmcUtils {
         System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
     }
 
-    static void printExtractedKonjunktion(QmcMinifier mini, int pad) {
-        mini.reqTable.stream().map(terms -> QmcUtils.termsToKonjunktion(terms, pad)).forEach(QmcUtils::print);
-        System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
-    }
-
-    static void print7SegFinals(List<List<Integer>> allTerms, char segment) {
-        QmcMinifier seg = new QmcMinifier(allTerms.stream().toList(), SegTable.function(segment - 65), 10);
-        seg.minify();
-
-        System.out.println("Segment " + segment + ":");
-        System.out.println("MSB  LSB");
-        seg.reqTable.forEach(terms -> {
+    static void printExtractedAndKonjunktion(QmcMinifier mini, int pad) {
+        mini.reqTable.forEach(terms -> {
             QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, 4));
             System.out.println(terms);
         });
-        System.out.println();
-
-        if (!seg.reqIndices.isEmpty())
-            System.out.println("Still required: " + Arrays.toString(seg.reqIndices.toArray()));
+        System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
     }
 
     static void printAllIndices(QuineMcCluskey[] qmcs) {
@@ -62,7 +46,7 @@ public class QmcUtils {
         }
     }
 
-    static void printAllExtracted(QmcMinifier[] minis) {
+    public static void printAllExtracted(QmcMinifier[] minis) {
         for (int i = 0; i < minis.length; i++) {
             System.out.println(i + ":");
             printExtracted(minis[i]);
@@ -70,12 +54,12 @@ public class QmcUtils {
         }
     }
 
-    static void print(List<Integer> c) {
+    public static void print(List<Integer> c) {
         printPlain(c);
         System.out.println();
     }
 
-    static void printPlain(List<Integer> c) {
+    public static void printPlain(List<Integer> c) {
         for (int i : c) {
             System.out.print((i == -1 ? "-" : i) + " ");
         }
@@ -93,11 +77,21 @@ public class QmcUtils {
         return decimal;
     }
 
-    static String toBinaryPad(int i, int pad) {
-        return String.format("%" + String.format("%02d", pad) + "d", Integer.parseInt(SegTable.toBinary(i)));
+    public static String toBinary(int a) {
+        var b = "" + a % 2;
+        var x = a / 2;
+        while (x != 0) {
+            b = x % 2 + b;
+            x /= 2;
+        }
+        return b;
     }
 
-    static List<Integer> termsToKonjunktion(List<Integer> terms, int pad) {
+    static String toBinaryPad(int i, int pad) {
+        return String.format("%" + String.format("%02d", pad) + "d", Integer.parseInt(toBinary(i)));
+    }
+
+    public static List<Integer> termsToKonjunktion(List<Integer> terms, int pad) {
         List<Integer> konjunktion = new ArrayList<>();
         List<String> minterme = terms.stream().map(minterm -> toBinaryPad(minterm, pad)).toList();
         for (String minterm : minterme) {

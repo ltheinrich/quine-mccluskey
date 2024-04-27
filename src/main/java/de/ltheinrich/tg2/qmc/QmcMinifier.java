@@ -1,21 +1,22 @@
 package de.ltheinrich.tg2.qmc;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.w3c.dom.ls.LSOutput;
+
+import java.util.*;
 
 public class QmcMinifier {
 
     List<List<Integer>> minifyTable;
-    List<List<Integer>> reqTable = new ArrayList<>();
-    List<Integer> reqIndices;
+    public List<List<Integer>> reqTable = new ArrayList<>();
+    public List<Integer> reqIndices;
 
-    QmcMinifier(List<List<Integer>> minifyTable, List<Integer> reqIndices) {
-        this(minifyTable, reqIndices, Integer.MAX_VALUE);
+    public QmcMinifier(List<List<Integer>> minifyTable, List<Integer> reqIndices) {
+        this(minifyTable, reqIndices, List.of());
     }
 
-    QmcMinifier(List<List<Integer>> minifyTable, List<Integer> reqIndices, int dcStart) {
+    public QmcMinifier(List<List<Integer>> minifyTable, List<Integer> reqIndices, List<Integer> dontCares) {
         this.reqIndices = new ArrayList<>(reqIndices);
-        this.minifyTable = new ArrayList<>(minifyTable.stream().filter(terms -> terms.stream().allMatch(i -> i >= dcStart || reqIndices.contains(i))).toList());
+        this.minifyTable = new ArrayList<>(minifyTable.stream().filter(terms -> terms.stream().allMatch(i -> dontCares.contains(i) || reqIndices.contains(i))).toList());
         //System.out.println("Size: " + minifyTable.size() + " to " + this.minifyTable.size());
     }
 
@@ -34,13 +35,17 @@ public class QmcMinifier {
             }
 
             if (required != null && !reqTable.contains(required)) {
-                reqTable.add(required);
-                minifyTable.remove(required);
-                required.forEach(reqIndices::remove);
+                setRequired(required);
                 return extractRequired() + 1;
             }
         }
         return 0;
+    }
+
+    void setRequired(List<Integer> required) {
+        reqTable.add(required);
+        minifyTable.remove(required);
+        required.forEach(reqIndices::remove);
     }
 
     int rowDominance() {
@@ -62,7 +67,7 @@ public class QmcMinifier {
         return 0;
     }
 
-    List<List<Integer>> minify() {
+    public boolean minify() {
         int lastExtraction = Integer.MAX_VALUE;
         int lastRowDom = Integer.MAX_VALUE;
         extractRequired();
@@ -70,6 +75,84 @@ public class QmcMinifier {
             lastRowDom = rowDominance();
             lastExtraction = extractRequired();
         }
-        return reqTable;
+        return minifyTable.isEmpty() && reqIndices.isEmpty();
+    }
+
+    void branch(int selection) {
+        List<Integer> selected = minifyTable.get(selection);
+        setRequired(selected);
+        minify();
+    }
+
+    void branches(List<Integer> selections) {
+        selections.stream().map(minifyTable::get).toList().forEach(this::setRequired);
+        minify();
+    }
+
+    public QmcMinifier[] allBranches() {
+        List<List<Integer>> branches = subBranches(0);
+        QmcMinifier[] minis = new QmcMinifier[branches.size()];
+        for (int i = 0; i < branches.size(); i++) {
+            QmcMinifier mini = new QmcMinifier(List.of(), reqIndices);
+            mini.minifyTable = new ArrayList<>(minifyTable);
+            mini.reqTable.addAll(reqTable);
+            mini.branches(branches.get(i));
+            mini.minify();
+            minis[i] = mini;
+        }
+        return minis;
+    }
+
+    List<List<Integer>> subBranches(int current) {
+        if (current == minifyTable.size() - 1)
+            return List.of(List.of(current));
+        else if (current >= minifyTable.size()) {
+            System.out.println(minifyTable.size() + " " + current);
+        }
+
+        List<List<Integer>> subBranches = subBranches(current + 1);
+        List<List<Integer>> branches = new ArrayList<>(subBranches);
+        for (List<Integer> subBranch : subBranches) {
+            List<Integer> branch = new ArrayList<>(subBranch.size() + 1);
+            branch.addAll(subBranch);
+            branch.add(current);
+            branches.add(branch);
+        }
+        branches.add(List.of(current));
+
+        return branches;
+    }
+
+    public List<QmcMinifier> bestBranches() {
+        QmcMinifier[] minis = allBranches();
+        int min = Integer.MAX_VALUE;
+        int minCount = Integer.MAX_VALUE;
+        for (QmcMinifier mini : minis) {
+            if (!mini.reqIndices.isEmpty() || mini.reqTable.size() > min)
+                continue;
+
+            int currentCount = (int) mini.reqTable.stream().mapToLong(Collection::size).sum();
+            if (mini.reqTable.size() < min) {
+                min = mini.reqTable.size();
+                minCount = currentCount;
+            } else if (currentCount < minCount) {
+                minCount = currentCount;
+            }
+        }
+
+        int finalMin = min;
+        int finalMinCount = minCount;
+        List<QmcMinifier> bestBranches = Arrays.stream(minis).filter(mini -> mini.reqTable.size() == finalMin && mini.reqTable.stream().mapToLong(Collection::size).sum() == finalMinCount).toList();
+        List<QmcMinifier> reducedBranches = new ArrayList<>(bestBranches.size());
+        outerLoop:
+        for (int i = 0; i < bestBranches.size(); i++) {
+            for (int j = i + 1; j < bestBranches.size(); j++) {
+                if (new HashSet<>(bestBranches.get(i).reqTable).containsAll(bestBranches.get(j).reqTable)) {
+                    continue outerLoop;
+                }
+            }
+            reducedBranches.add(bestBranches.get(i));
+        }
+        return reducedBranches;
     }
 }

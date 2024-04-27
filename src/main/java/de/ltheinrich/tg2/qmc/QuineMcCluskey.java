@@ -1,7 +1,5 @@
 package de.ltheinrich.tg2.qmc;
 
-import de.ltheinrich.tg2.seg.SegTable;
-
 import java.util.*;
 
 public class QuineMcCluskey {
@@ -11,20 +9,28 @@ public class QuineMcCluskey {
     List<Set<List<Integer>>> groups = new ArrayList<>();
     Set<List<Integer>> checked = new HashSet<>();
 
-    int dcStart;
-    List<Integer> reqIndices;
+    List<Integer> dontCares;
+    public List<Integer> reqIndices;
 
-    QuineMcCluskey(String... rawTable) {
-        this(Integer.MAX_VALUE, rawTable);
+    QuineMcCluskey(int bits, int... minterms) {
+        this(List.of(), bits, minterms);
     }
 
-    QuineMcCluskey(int dcStart, String... rawTable) {
-        this.dcStart = dcStart;
+    QuineMcCluskey(List<Integer> dontCares, int bits, int... minterms) {
+        this(dontCares, Arrays.stream(minterms).mapToObj(minterm -> QmcUtils.toBinaryPad(minterm, bits)).toArray(String[]::new));
+    }
+
+    QuineMcCluskey(String... rawTable) {
+        this(List.of(), rawTable);
+    }
+
+    public QuineMcCluskey(List<Integer> dontCares, String... rawTable) {
+        this.dontCares = dontCares;
         table = new HashSet<>(rawTable.length);
         reqIndices = new ArrayList<>(rawTable.length);
         for (String s : rawTable) {
             int d = QmcUtils.toDecimal(s);
-            if (d < dcStart)
+            if (!dontCares.contains(d))
                 reqIndices.add(d);
             List<Integer> z = new ArrayList<>(s.length());
             s.chars().map(c -> c < 48 ? -1 : c - 48).forEach(z::add);
@@ -72,7 +78,7 @@ public class QuineMcCluskey {
         return c;
     }
 
-    Set<List<Integer>> unchecked() {
+    public Set<List<Integer>> unchecked() {
         Set<List<Integer>> unchecked = new HashSet<>();
         groups.forEach(group -> {
             unchecked.addAll(group.stream().filter(a -> !checked.contains(a)).toList());
@@ -85,7 +91,7 @@ public class QuineMcCluskey {
         int[][] binaries = new int[size][];
         for (int i = 0; i < size; i++) {
             int[] binary = new int[n];
-            String binaryString = String.format("%" + (n < 10 ? "0" + n : n) + "d", Integer.parseInt(SegTable.toBinary(i)));
+            String binaryString = QmcUtils.toBinaryPad(i, n);
             for (int j = 0; j < n; j++) {
                 binary[j] = binaryString.charAt(j) - 48;
             }
@@ -94,16 +100,13 @@ public class QuineMcCluskey {
         return binaries;
     }
 
-    Set<List<Integer>> mintermIndices(Set<List<Integer>> minterms) {
+    public Set<List<Integer>> mintermIndices(Set<List<Integer>> minterms) {
         var binaries = generateBinaries(minterms.iterator().next().size());
         Set<List<Integer>> mintermIndices = new HashSet<>();
         for (List<Integer> minterm : minterms) {
             List<Integer> indices = new ArrayList<>();
             binaryLoop:
             for (int b = 0; b < binaries.length; b++) {
-                if (indices.isEmpty() && b >= dcStart)
-                    continue;
-
                 for (int i = 0; i < binaries[b].length; i++) {
                     if (minterm.get(i) != -1 && minterm.get(i) != binaries[b][i]) {
                         continue binaryLoop;
@@ -111,13 +114,14 @@ public class QuineMcCluskey {
                 }
                 indices.add(b);
             }
-            if (!indices.isEmpty())
+
+            if (!indices.isEmpty() && !new HashSet<>(dontCares).containsAll(indices))
                 mintermIndices.add(indices);
         }
         return mintermIndices;
     }
 
-    void runUntilEmptyOr(int limit) {
+    public void runUntilEmptyOr(int limit) {
         for (int i = 0; i < limit; i++) {
             this.generateNextGroup();
             if (groups.getLast().isEmpty())
@@ -132,9 +136,9 @@ public class QuineMcCluskey {
         return new ArrayList<>(mintermIndices(unchecked()));
     }
 
-    QmcMinifier runAndMinify(int limit) {
+    public QmcMinifier runAndMinify(int limit) {
         runUntilEmptyOr(limit);
-        QmcMinifier mini = new QmcMinifier(generateMinifyTable(), reqIndices, dcStart);
+        QmcMinifier mini = new QmcMinifier(generateMinifyTable(), reqIndices, dontCares);
         mini.minify();
         return mini;
     }
