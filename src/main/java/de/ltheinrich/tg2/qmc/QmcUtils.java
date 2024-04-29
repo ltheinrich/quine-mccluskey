@@ -25,7 +25,7 @@ public class QmcUtils {
         });
     }
 
-    static void printExtracted(QmcMinifier mini) {
+    public static void printExtracted(QmcMinifier mini) {
         mini.reqTable.forEach(QmcUtils::print);
         System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
     }

@@ -1,5 +1,6 @@
 package de.ltheinrich.tg2.seg;
 
+import de.ltheinrich.tg2.qmc.BundleMinifier;
 import de.ltheinrich.tg2.qmc.QmcMinifier;
 import de.ltheinrich.tg2.qmc.QmcUtils;
 import de.ltheinrich.tg2.qmc.QuineMcCluskey;
@@ -20,7 +21,7 @@ public class SegTable {
     };
     static List<Integer> dontCares = List.of(10, 11, 12, 13, 14, 15);
 
-    static void printAll() {
+    public static void printBundle() {
         var start = System.currentTimeMillis();
         QuineMcCluskey[] qmcs = new QuineMcCluskey[128];
         var minis = qmcForAll(qmcs);
@@ -32,7 +33,7 @@ public class SegTable {
 
         QmcUtils.printAllExtracted(minis);
         for (int i = 0; i < minis.length; i++) {
-            System.out.println(i + ":" + String.join(";", minis[i].reqTable.stream().map(term -> String.join(",", term.stream().map(String::valueOf).toArray(String[]::new))).toArray(String[]::new)));
+            System.out.println(i + ":" + String.join(";", qmcs[i].mintermIndices(qmcs[i].unchecked()).stream().map(term -> String.join(",", term.stream().map(String::valueOf).toArray(String[]::new))).toArray(String[]::new)));
         }
 
         /*System.out.println("Reduzierte Primimplikanten:");
@@ -40,7 +41,96 @@ public class SegTable {
         System.out.println();*/
 
         System.out.println("Bündel-Primimplikanten:");
-        allTerms.stream().map(term -> String.join(",", String.join(", ", term.stream().map(String::valueOf).toArray(String[]::new)))).forEach(System.out::println);
+        allTerms.stream().map(term -> String.join(", ", term.stream().map(String::valueOf).toArray(String[]::new))).forEach(System.out::println);
+        System.out.println();
+
+        List<List<Integer>> functions = List.of(function(0), function(1), function(2), function(3),
+                function(4), function(5), function(6));
+        BundleMinifier bm = new BundleMinifier(
+                allTerms.stream().toList(),
+                functions,
+                List.of(10, 11, 12, 13, 14, 15)
+        );
+        bm.minify();
+        System.out.println("Extracted (bundle):");
+        bm.reqTable.forEach(terms -> {
+            QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, 4));
+            System.out.println(terms);
+        });
+        System.out.println("Still required: " + bm.refRow.stream().map(entry -> (char) (entry.getKey() + 65) + " m" + entry.getValue()).toList());
+        System.out.println();
+
+        System.out.println("Branching (bundle):");
+        bm.bestBranches().forEach(branch -> {
+            System.out.println("Branch (bundle):");
+            branch.reqTable.forEach(terms -> {
+                QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, 4));
+                System.out.println(terms);
+            });
+            System.out.println();
+
+            for (int f = 0; f < functions.size(); f++) {
+                char seg = (char) (f + 65);
+                System.out.println("Segment " + seg + ":");
+                QmcMinifier mini = new QmcMinifier(List.of(), function(f));
+                mini.minifyTable = new ArrayList<>(branch.reqTable);
+                mini.minify();
+                System.out.println("Extracted:");
+                mini.reqTable.forEach(terms -> {
+                    QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, 4));
+                    System.out.println(terms);
+                });
+                if (!mini.reqTable.isEmpty()) {
+                    System.out.println("Still required: " + mini.reqIndices);
+                }
+                if (!mini.reqIndices.isEmpty()) {
+                    System.out.println("Branching (seg " + seg + "):");
+                    List<QmcMinifier> bestBranches = mini.bestBranches();
+                    bestBranches.forEach(singleBranch -> {
+                        System.out.println("Branch (seg " + seg + "):");
+                        singleBranch.reqTable.forEach(terms -> {
+                            QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, 4));
+                            System.out.println(terms);
+                        });
+                        if (!singleBranch.reqIndices.isEmpty()) {
+                            throw new IllegalStateException("Still required: " + Arrays.toString(singleBranch.reqIndices.toArray()));
+                        }
+                    });
+                    if (bestBranches.isEmpty()) {
+                        throw new IllegalStateException("Still required, but no branches available");
+                    }
+                }
+                System.out.println();
+            }
+            System.out.println("-------------------------------------");
+            System.out.println();
+        });
+
+        System.out.println("Dauer: " + (System.currentTimeMillis() - start) + " ms");
+    }
+
+
+    public static Set<List<Integer>> printAll() {
+        var start = System.currentTimeMillis();
+        QuineMcCluskey[] qmcs = new QuineMcCluskey[128];
+        var minis = qmcForAll(qmcs);
+        Set<List<Integer>> allTerms = new HashSet<>();
+        for (int i = 0; i < minis.length; i++) {
+            //allTerms.addAll(mini.reqTable);
+            allTerms.addAll(qmcs[i].mintermIndices(qmcs[i].unchecked()));
+        }
+
+        QmcUtils.printAllExtracted(minis);
+        for (int i = 0; i < minis.length; i++) {
+            System.out.println(i + ":" + String.join(";", qmcs[i].mintermIndices(qmcs[i].unchecked()).stream().map(term -> String.join(",", term.stream().map(String::valueOf).toArray(String[]::new))).toArray(String[]::new)));
+        }
+
+        /*System.out.println("Reduzierte Primimplikanten:");
+        allTerms.forEach(QmcUtils::print);
+        System.out.println();*/
+
+        System.out.println("Bündel-Primimplikanten:");
+        allTerms.stream().map(term -> String.join(", ", term.stream().map(String::valueOf).toArray(String[]::new))).forEach(System.out::println);
         System.out.println();
 
         print7SegFinals(allTerms.stream().toList(), 'A');
@@ -52,6 +142,7 @@ public class SegTable {
         print7SegFinals(allTerms.stream().toList(), 'G');
 
         System.out.println("Dauer: " + (System.currentTimeMillis() - start) + " ms");
+        return allTerms;
     }
 
     static QmcMinifier[] qmcForAll(QuineMcCluskey[] qmcs) {
@@ -60,8 +151,10 @@ public class SegTable {
         for (int i = 0; i < minis.length; i++) {
             var qmc = new QuineMcCluskey(dontCares, functions.get(i).toArray(String[]::new));
             QmcMinifier mini = qmc.runAndMinify(1000);
+            /*if (!mini.reqIndices.isEmpty())
+                throw new IllegalStateException(qmc.reqIndices.toString());*/
             if (!mini.reqIndices.isEmpty())
-                throw new IllegalStateException(qmc.reqIndices.toString());
+                System.out.println(i + ": Still required: " + qmc.reqIndices.toString());
             minis[i] = mini;
             if (qmcs != null)
                 qmcs[i] = qmc;
@@ -79,11 +172,20 @@ public class SegTable {
             QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, 4));
             System.out.println(terms);
         });
-        System.out.println();
-
         if (!seg.reqIndices.isEmpty()) {
-            throw new IllegalStateException("Still required: " + Arrays.toString(seg.reqIndices.toArray()));
+            System.out.println("Branching:");
+            seg.bestBranches().forEach(branch -> {
+                branch.reqTable.forEach(terms -> {
+                    QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, 4));
+                    System.out.println(terms);
+                });
+                if (!branch.reqIndices.isEmpty()) {
+                    throw new IllegalStateException("Still required: " + Arrays.toString(seg.reqIndices.toArray()));
+                }
+                System.out.println();
+            });
         }
+        System.out.println();
     }
 
     public static List<Integer> function(int segment) {

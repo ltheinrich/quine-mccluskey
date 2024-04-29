@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class SegRunner {
-    public static void main(String[] args) {
+    public static void mainSingle(String[] args) {
         System.out.print("Enter 3 for Excess3-Code (default is standard binary); else ENTER: ");
         if (!new Scanner(System.in).nextLine().isBlank()) {
             SegTable.table = new boolean[][]{
@@ -19,5 +19,9 @@ public class SegRunner {
             SegTable.dontCares = List.of(0, 1, 2, 13, 14, 15);
         }
         SegTable.printAll();
+    }
+
+    public static void main(String[] args) {
+        SegTable.printBundle();
     }
 }

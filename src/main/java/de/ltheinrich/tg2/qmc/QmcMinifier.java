@@ -6,7 +6,7 @@ import java.util.*;
 
 public class QmcMinifier {
 
-    List<List<Integer>> minifyTable;
+    public List<List<Integer>> minifyTable;
     public List<List<Integer>> reqTable = new ArrayList<>();
     public List<Integer> reqIndices;
 
@@ -60,8 +60,11 @@ public class QmcMinifier {
                         continue terms2Loop;
                     }
                 }
-                minifyTable.remove(terms2);
-                return rowDominance() + 1;
+
+                if (terms2.stream().filter(reqIndices::contains).count() < terms1.stream().filter(reqIndices::contains).count()) {
+                    minifyTable.remove(terms2);
+                    return rowDominance() + 1;
+                }
             }
         }
         return 0;
@@ -142,7 +145,7 @@ public class QmcMinifier {
 
         int finalMin = min;
         int finalMinCount = minCount;
-        List<QmcMinifier> bestBranches = Arrays.stream(minis).filter(mini -> mini.reqTable.size() == finalMin && mini.reqTable.stream().mapToLong(Collection::size).sum() == finalMinCount).toList();
+        List<QmcMinifier> bestBranches = Arrays.stream(minis).filter(mini -> mini.reqIndices.isEmpty() && mini.reqTable.size() == finalMin && mini.reqTable.stream().mapToLong(Collection::size).sum() == finalMinCount).toList();
         List<QmcMinifier> reducedBranches = new ArrayList<>(bestBranches.size());
         outerLoop:
         for (int i = 0; i < bestBranches.size(); i++) {
