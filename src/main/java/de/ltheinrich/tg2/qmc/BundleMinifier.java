@@ -1,7 +1,5 @@
 package de.ltheinrich.tg2.qmc;
 
-import de.ltheinrich.tg2.seg.SegTable;
-
 import java.util.*;
 
 public class BundleMinifier {
@@ -66,8 +64,6 @@ public class BundleMinifier {
                     col = column;
                 }
             }
-            if (col == -1)
-                continue; // TODO remove
             setRequired(col);
             return extractRequired() + 1;
         }
