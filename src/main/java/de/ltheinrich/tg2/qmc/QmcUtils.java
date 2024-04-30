@@ -30,9 +30,13 @@ public class QmcUtils {
         System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
     }
 
+    public static void printMintermsUnchecked(QuineMcCluskey qmc) {
+        qmc.mintermIndices(qmc.unchecked()).forEach(QmcUtils::print);
+    }
+
     static void printExtractedAndKonjunktion(QmcMinifier mini, int pad) {
         mini.reqTable.forEach(terms -> {
-            QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, 4));
+            QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, pad));
             System.out.println(terms);
         });
         System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
@@ -50,6 +54,14 @@ public class QmcUtils {
         for (int i = 0; i < minis.length; i++) {
             System.out.println(i + ":");
             printExtracted(minis[i]);
+            System.out.println();
+        }
+    }
+
+    public static void printAllMintermsUnchecked(QuineMcCluskey[] qmcs) {
+        for (int i = 0; i < qmcs.length; i++) {
+            System.out.println(i + ":");
+            printMintermsUnchecked(qmcs[i]);
             System.out.println();
         }
     }
