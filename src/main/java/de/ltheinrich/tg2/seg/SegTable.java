@@ -28,7 +28,13 @@ public class SegTable {
         Set<List<Integer>> allTerms = new HashSet<>();
         for (int i = 0; i < minis.length; i++) {
             //allTerms.addAll(mini.reqTable);
-            allTerms.addAll(qmcs[i].mintermIndices(qmcs[i].unchecked()));
+            Set<List<Integer>> implicants = qmcs[i].mintermIndices(qmcs[i].unchecked());
+            if (!qmcs[i].reqIndices.isEmpty()) {
+                if (!qmcs[i].reqIndices.stream().allMatch(reqIndex -> implicants.stream().anyMatch(implicant -> implicant.contains(reqIndex)))) {
+                    throw new IllegalStateException("reqIndices not in implicants");
+                }
+            }
+            allTerms.addAll(implicants);
         }
 
         QmcUtils.printAllExtracted(minis);
@@ -117,7 +123,13 @@ public class SegTable {
         Set<List<Integer>> allTerms = new HashSet<>();
         for (int i = 0; i < minis.length; i++) {
             //allTerms.addAll(mini.reqTable);
-            allTerms.addAll(qmcs[i].mintermIndices(qmcs[i].unchecked()));
+            Set<List<Integer>> implicants = qmcs[i].mintermIndices(qmcs[i].unchecked());
+            if (!qmcs[i].reqIndices.isEmpty()) {
+                if (!qmcs[i].reqIndices.stream().allMatch(reqIndex -> implicants.stream().anyMatch(implicant -> implicant.contains(reqIndex)))) {
+                    throw new IllegalStateException("reqIndices not in implicants");
+                }
+            }
+            allTerms.addAll(implicants);
         }
 
         QmcUtils.printAllMintermsUnchecked(qmcs);
