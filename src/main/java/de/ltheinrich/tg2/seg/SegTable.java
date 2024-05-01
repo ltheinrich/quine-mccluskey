@@ -37,7 +37,7 @@ public class SegTable {
             allTerms.addAll(implicants);
         }
 
-        QmcUtils.printAllExtracted(minis);
+        QmcUtils.printAllMintermsUnchecked(qmcs);
         for (int i = 0; i < minis.length; i++) {
             System.out.println(i + ":" + String.join(";", qmcs[i].mintermIndices(qmcs[i].unchecked()).stream().map(term -> String.join(",", term.stream().map(String::valueOf).toArray(String[]::new))).toArray(String[]::new)));
         }
