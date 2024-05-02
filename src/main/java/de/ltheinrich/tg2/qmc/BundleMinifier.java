@@ -167,7 +167,7 @@ public class BundleMinifier {
     public List<BundleMinifier> bestBranches() {
         BundleMinifier[] bms = allBranches();
         int min = Integer.MAX_VALUE;
-        int minCount = Integer.MAX_VALUE;
+        int maxCount = Integer.MIN_VALUE;
         for (BundleMinifier bm : bms) {
             if (!bm.table.isEmpty() || bm.reqTable.size() > min)
                 continue;
@@ -175,15 +175,15 @@ public class BundleMinifier {
             int currentCount = (int) bm.reqTable.stream().mapToLong(Collection::size).sum();
             if (bm.reqTable.size() < min) {
                 min = bm.reqTable.size();
-                minCount = currentCount;
-            } else if (currentCount < minCount) {
-                minCount = currentCount;
+                maxCount = currentCount;
+            } else if (currentCount > maxCount) {
+                maxCount = currentCount;
             }
         }
 
         int finalMin = min;
-        int finalMinCount = minCount;
-        List<BundleMinifier> bestBranches = Arrays.stream(bms).filter(bm -> bm.table.isEmpty() && bm.reqTable.size() == finalMin && bm.reqTable.stream().mapToLong(Collection::size).sum() == finalMinCount).toList();
+        int finalMaxCount = maxCount;
+        List<BundleMinifier> bestBranches = Arrays.stream(bms).filter(bm -> bm.table.isEmpty() && bm.reqTable.size() == finalMin && bm.reqTable.stream().mapToLong(Collection::size).sum() == finalMaxCount).toList();
         List<BundleMinifier> reducedBranches = new ArrayList<>(bestBranches.size());
         outerLoop:
         for (int i = 0; i < bestBranches.size(); i++) {

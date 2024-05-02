@@ -129,7 +129,7 @@ public class QmcMinifier {
     public List<QmcMinifier> bestBranches() {
         QmcMinifier[] minis = allBranches();
         int min = Integer.MAX_VALUE;
-        int minCount = Integer.MAX_VALUE;
+        int maxCount = Integer.MIN_VALUE;
         for (QmcMinifier mini : minis) {
             if (!mini.reqIndices.isEmpty() || mini.reqTable.size() > min)
                 continue;
@@ -137,15 +137,15 @@ public class QmcMinifier {
             int currentCount = (int) mini.reqTable.stream().mapToLong(Collection::size).sum();
             if (mini.reqTable.size() < min) {
                 min = mini.reqTable.size();
-                minCount = currentCount;
-            } else if (currentCount < minCount) {
-                minCount = currentCount;
+                maxCount = currentCount;
+            } else if (currentCount > maxCount) {
+                maxCount = currentCount;
             }
         }
 
         int finalMin = min;
-        int finalMinCount = minCount;
-        List<QmcMinifier> bestBranches = Arrays.stream(minis).filter(mini -> mini.reqIndices.isEmpty() && mini.reqTable.size() == finalMin && mini.reqTable.stream().mapToLong(Collection::size).sum() == finalMinCount).toList();
+        int finalMaxCount = maxCount;
+        List<QmcMinifier> bestBranches = Arrays.stream(minis).filter(mini -> mini.reqIndices.isEmpty() && mini.reqTable.size() == finalMin && mini.reqTable.stream().mapToLong(Collection::size).sum() == finalMaxCount).toList();
         List<QmcMinifier> reducedBranches = new ArrayList<>(bestBranches.size());
         outerLoop:
         for (int i = 0; i < bestBranches.size(); i++) {

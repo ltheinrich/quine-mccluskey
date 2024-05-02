@@ -36,8 +36,7 @@ public class QmcUtils {
 
     static void printExtractedAndKonjunktion(QmcMinifier mini, int pad) {
         mini.reqTable.forEach(terms -> {
-            QmcUtils.printPlain(QmcUtils.termsToKonjunktion(terms, pad));
-            System.out.println(terms);
+            QmcUtils.printTerms(terms, pad);
         });
         System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
     }
@@ -64,6 +63,13 @@ public class QmcUtils {
             printMintermsUnchecked(qmcs[i]);
             System.out.println();
         }
+    }
+
+    public static void printTerms(List<Integer> terms, int pad) {
+        List<Integer> konjunktion = QmcUtils.termsToKonjunktion(terms, pad);
+        QmcUtils.printPlain(konjunktion);
+        System.out.print("( " + String.join(" ^ ", QmcUtils.konjunktionenToXn(konjunktion)) + " ) ");
+        System.out.println(terms);
     }
 
     public static void print(List<Integer> c) {
@@ -118,5 +124,17 @@ public class QmcUtils {
             }
         }
         return konjunktion;
+    }
+
+    public static List<String> konjunktionenToXn(List<Integer> konjunktion) {
+        List<String> xn = new ArrayList<>();
+        for (int i = 0; i < konjunktion.size(); i++) {
+            if (konjunktion.get(i) == 1) {
+                xn.add("x" + (konjunktion.size() - i - 1));
+            } else if (konjunktion.get(i) == 0) {
+                xn.add("!x" + (konjunktion.size() - i - 1));
+            }
+        }
+        return xn;
     }
 }
