@@ -106,7 +106,11 @@ public class QmcUtils {
     }
 
     static String toBinaryPad(int i, int pad) {
-        return String.format("%" + String.format("%02d", pad) + "d", Integer.parseInt(toBinary(i)));
+        String binary = toBinary(i);
+        while (binary.length() < pad) {
+            binary = "0" + binary;
+        }
+        return binary;
     }
 
     public static List<Integer> termsToKonjunktion(List<Integer> terms, int pad) {
