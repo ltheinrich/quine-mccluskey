@@ -12,8 +12,9 @@ public class QmcRunner {
         List<Integer> minterms = new ArrayList<>(Arrays.stream(in.nextLine().split(",")).filter(line -> !line.isBlank()).map(String::trim).map(Integer::parseInt).toList());
         System.out.print("Don't Cares: ");
         List<Integer> dontCares = Arrays.stream(in.nextLine().split(",")).filter(line -> !line.isBlank()).map(String::trim).map(Integer::parseInt).toList();
-        minterms.addAll(dontCares);
-        QuineMcCluskey qmc = new QuineMcCluskey(dontCares, bits, minterms.stream().mapToInt(i -> i).toArray());
+        //minterms.addAll(dontCares);
+        //QuineMcCluskey qmc = new QuineMcCluskey(dontCares, bits, minterms.stream().mapToInt(i -> i).toArray());
+        FastQmc qmc = new FastQmc(bits, minterms, dontCares);
         QmcMinifier mini = qmc.runAndMinify(1000);
         System.out.println("Ergebnisse:");
         QmcUtils.printExtractedAndKonjunktion(mini, bits);

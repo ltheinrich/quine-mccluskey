@@ -14,7 +14,7 @@ public class QmcMinifier {
         this(minifyTable, reqIndices, List.of());
     }
 
-    public QmcMinifier(List<List<Integer>> minifyTable, List<Integer> reqIndices, List<Integer> dontCares) {
+    public QmcMinifier(Collection<List<Integer>> minifyTable, Collection<Integer> reqIndices, Collection<Integer> dontCares) {
         this.reqIndices = new ArrayList<>(reqIndices);
         this.minifyTable = new ArrayList<>(minifyTable.stream().filter(terms -> terms.stream().allMatch(i -> dontCares.contains(i) || reqIndices.contains(i))).toList());
         //System.out.println("Size: " + minifyTable.size() + " to " + this.minifyTable.size());

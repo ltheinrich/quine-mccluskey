@@ -34,7 +34,7 @@ public class QmcUtils {
         qmc.mintermIndices(qmc.unchecked()).forEach(QmcUtils::print);
     }
 
-    static void printExtractedAndKonjunktion(QmcMinifier mini, int pad) {
+    public static void printExtractedAndKonjunktion(QmcMinifier mini, int pad) {
         mini.reqTable.forEach(terms -> {
             QmcUtils.printTerms(terms, pad);
         });
@@ -105,7 +105,7 @@ public class QmcUtils {
         return b;
     }
 
-    static String toBinaryPad(int i, int pad) {
+    public static String toBinaryPad(int i, int pad) {
         String binary = toBinary(i);
         while (binary.length() < pad) {
             binary = "0" + binary;

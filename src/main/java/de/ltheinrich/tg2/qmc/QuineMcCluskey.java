@@ -16,7 +16,7 @@ public class QuineMcCluskey {
         this(List.of(), bits, minterms);
     }
 
-    QuineMcCluskey(List<Integer> dontCares, int bits, int... minterms) {
+    public QuineMcCluskey(List<Integer> dontCares, int bits, int... minterms) {
         this(dontCares, Arrays.stream(minterms).mapToObj(minterm -> QmcUtils.toBinaryPad(minterm, bits)).toArray(String[]::new));
     }
 
@@ -137,9 +137,13 @@ public class QuineMcCluskey {
     }
 
     public QmcMinifier runAndMinify(int limit) {
+        System.out.println("running started " + System.currentTimeMillis());
         runUntilEmptyOr(limit);
+        System.out.println("running ended " + System.currentTimeMillis());
         QmcMinifier mini = new QmcMinifier(generateMinifyTable(), reqIndices, dontCares);
+        System.out.println("qmc started " + System.currentTimeMillis());
         mini.minify();
+        System.out.println("qmc ended " + System.currentTimeMillis());
         return mini;
     }
 }
