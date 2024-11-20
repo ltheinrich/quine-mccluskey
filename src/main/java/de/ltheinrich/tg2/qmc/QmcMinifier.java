@@ -1,7 +1,5 @@
 package de.ltheinrich.tg2.qmc;
 
-import org.w3c.dom.ls.LSOutput;
-
 import java.util.*;
 
 public class QmcMinifier {

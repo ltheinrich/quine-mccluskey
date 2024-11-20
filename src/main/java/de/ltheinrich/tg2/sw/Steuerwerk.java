@@ -2,7 +2,6 @@ package de.ltheinrich.tg2.sw;
 
 import de.ltheinrich.tg2.qmc.QmcUtils;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.util.*;
 
