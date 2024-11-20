@@ -10,15 +10,22 @@ import java.util.stream.IntStream;
 
 public class SwRunner {
 
-    private static final int INPUT_SIZE = 13;
+    private static final int DIFF = 0;
+    private static final boolean OUTPUT_MODE = false;
+    private static final int INPUT_SIZE = OUTPUT_MODE ? 4 : 13;
 
     public static void main(String[] args) {
-        // OutputBit 13 -> Q3 (MSB)
-        // OutputBit 14 -> Q2
-        // OutputBit 15 -> Q1
-        // OutputBit 16 -> Q0 (LSB)
-        Steuerwerk sw = new Steuerwerk(INPUT_SIZE + 3, INPUT_SIZE);
-        FastQmc qmc = new FastQmc(INPUT_SIZE, sw.getMinterms(), sw.getDontCares());
+        // OutputBit 13 + 0 -> Q3 (MSB)
+        // OutputBit 13 + 1 -> Q2
+        // OutputBit 13 + 2 -> Q1
+        // OutputBit 13 + 3-> Q0 (LSB)
+        Generator gen;
+        if (OUTPUT_MODE) {
+            gen = new OutputSW(INPUT_SIZE + DIFF, INPUT_SIZE);
+        } else {
+            gen = new TransitionSW(INPUT_SIZE + DIFF, INPUT_SIZE);
+        }
+        FastQmc qmc = new FastQmc(INPUT_SIZE, gen.getMinterms(), gen.getDontCares());
         QmcMinifier mini = qmc.runAndMinify(1000);
         System.out.println("Ergebnisse:");
         printNamed(mini);
@@ -47,7 +54,7 @@ public class SwRunner {
     }
 
     private static String inputIndexToName(List<Integer> terms, int index) {
-        String name = switch (index) {
+        String name = switch (OUTPUT_MODE ? index + 1 : index) {
             case 0:
                 yield "R";
             case 1:
