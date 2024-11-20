@@ -30,6 +30,7 @@ public class SteuerwerkEntry {
 
     private int[] arr;
 
+    // WICHTIG! Veränderungen hier auch in SwRunner#inputIndexToName berücksichtigen!
     public int[] getArray() {
         if (arr == null) {
             if (Q.toString().length() != 4 || Command.toString().length() != 4 || Qnext.toString().length() != 4) throw new IllegalStateException();

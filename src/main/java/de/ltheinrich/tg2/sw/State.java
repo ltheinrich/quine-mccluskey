@@ -16,7 +16,6 @@ public enum State {
 
     ALL("----");
 
-
     private final String state;
 
     State(final String state) {
