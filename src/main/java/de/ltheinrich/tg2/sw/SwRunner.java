@@ -10,8 +10,8 @@ import java.util.stream.IntStream;
 
 public class SwRunner {
 
-    private static final int DIFF = 0;
-    private static final boolean OUTPUT_MODE = false;
+    private static final int DIFF = 11;
+    private static final boolean OUTPUT_MODE = true;
     private static final int INPUT_SIZE = OUTPUT_MODE ? 4 : 13;
 
     public static void main(String[] args) {

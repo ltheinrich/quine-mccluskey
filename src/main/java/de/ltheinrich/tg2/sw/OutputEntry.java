@@ -33,6 +33,8 @@ public class OutputEntry extends Entry {
     private final Integer RegOPtoC;
     @NonNull
     private final Integer AluStart;
+    @NonNull
+    private final Integer SWR;
 
     private int[] arr;
 
@@ -43,8 +45,8 @@ public class OutputEntry extends Entry {
             arr = new int[]{
                     charToValue(Q, 0), charToValue(Q, 1), charToValue(Q, 2), charToValue(Q, 3),
                     WriteA, WriteRAM, WriteADR1, WriteADR2, WriteOP,
-                    invert(PC_LD), invert(PC_EN + 1), PC_UP,
-                    RegADRtoRAM, RegOPtoC, AluStart
+                    invert(PC_LD), invert(PC_EN), PC_UP,
+                    RegADRtoRAM, RegOPtoC, AluStart, SWR
             };
         }
         return arr;
