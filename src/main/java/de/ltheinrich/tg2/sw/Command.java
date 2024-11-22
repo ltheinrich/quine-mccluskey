@@ -2,6 +2,14 @@ package de.ltheinrich.tg2.sw;
 
 public enum Command {
     ALU("0---"),
+    AND("0000"),
+    OR("0001"),
+    NOT("0010"),
+    ADD("0011"),
+    SUB("0100"),
+    MUL("0101"),
+    RES1("0110"),
+    RES2("0111"),
 
     JMP("1000"),
     JMPC("1001"),
