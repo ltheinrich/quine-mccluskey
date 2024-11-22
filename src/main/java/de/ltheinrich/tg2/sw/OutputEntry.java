@@ -59,7 +59,7 @@ public class OutputEntry extends Entry {
                     charToValue(Q, 0), charToValue(Q, 1), charToValue(Q, 2), charToValue(Q, 3),
                     WriteA, WriteRAM, WriteADR1, WriteADR2, WriteOP,
                     invert(PC_LD), invert(PC_EN), PC_UP,
-                    RegADRtoRAM, RegOPtoC, AluStart, SWR
+                    RegADRtoRAM, AluStart, SWR
             };
         }
         return arr;
