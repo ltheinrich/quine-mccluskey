@@ -1,12 +1,11 @@
 package de.ltheinrich.tg2.sw;
 
+import de.ltheinrich.tg2.qmc.FastQmc;
+import de.ltheinrich.tg2.qmc.QmcMinifier;
 import de.ltheinrich.tg2.qmc.QmcUtils;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Generator {
 
@@ -22,8 +21,12 @@ public class Generator {
     @Getter
     private final Set<Integer> dontCares = new LinkedHashSet<>();
 
+    private FastQmc[] qmcs;
+    private QmcMinifier[] minis;
+    private List<QmcMinifier>[] branches;
+
     protected Generator(int outputBit, int outputBitsStartIndex) {
-        this.outputBit = outputBit;
+        this.outputBit = outputBitsStartIndex + outputBit;
         this.outputBitsStartIndex = outputBitsStartIndex;
     }
 
@@ -52,6 +55,18 @@ public class Generator {
                 }
             }
         }
+    }
+
+    public String getOutputName() {
+        return entries.getFirst().getOutputNames()[outputBit - outputBitsStartIndex];
+    }
+
+    public int getInputBitsLength() {
+        return entries.getFirst().getInputNames().length;
+    }
+
+    public String[] getInputNames() {
+        return entries.getFirst().getInputNames();
     }
 
 }

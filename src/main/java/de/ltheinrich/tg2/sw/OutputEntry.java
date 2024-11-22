@@ -1,6 +1,7 @@
 package de.ltheinrich.tg2.sw;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
@@ -37,6 +38,20 @@ public class OutputEntry extends Entry {
     private final Integer SWR;
 
     private int[] arr;
+    @Getter
+    private final String[] inputNames = INPUT_NAMES;
+    @Getter
+    private static final String[] INPUT_NAMES = new String[]{
+            "Q3", "Q2", "Q1", "Q0",
+    };
+    @Getter
+    private final String[] outputNames = OUTPUT_NAMES;
+    @Getter
+    private static final String[] OUTPUT_NAMES = new String[]{
+            "WriteA", "WriteRAM", "WriteADR1", "WriteADR2", "WriteOP",
+            "!PC_LD", "!PC_EN", "PC_UP",
+            "RegADRtoRAM", "RegOPtoC", "AluStart", "SWR",
+    };
 
     // WICHTIG! Veränderungen hier auch in SwRunner#inputIndexToName berücksichtigen!
     public int[] getArray() {

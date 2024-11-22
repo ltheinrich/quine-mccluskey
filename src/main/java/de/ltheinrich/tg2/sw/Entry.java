@@ -8,8 +8,9 @@ import java.util.Collection;
 
 public abstract class Entry {
 
-    // WICHTIG! Veränderungen hier auch in SwRunner#inputIndexToName berücksichtigen!
     public abstract int[] getArray();
+    public abstract String[] getInputNames();
+    public abstract String[] getOutputNames();
 
     protected static int charToValue(Object binary, int i) {
         char c = binary.toString().charAt(i);

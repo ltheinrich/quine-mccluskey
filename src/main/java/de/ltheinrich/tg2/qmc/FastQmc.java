@@ -1,6 +1,8 @@
 package de.ltheinrich.tg2.qmc;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 public class FastQmc {
@@ -15,10 +17,11 @@ public class FastQmc {
     private final Collection<Integer> reqIndices;
     private final Collection<Integer> dontCares;
 
+    private final Lock lock = new ReentrantLock();
     // Groups g G, G'; Group group G0, G1; Minterms-List 1, 2; Value-List 0 0 1
     private final List<List<Set<List<Integer>>>> groups = new ArrayList<>();
     // Minterms not included in any other
-    private final Set<List<Integer>> unchecked = Collections.synchronizedSet(new HashSet<>());
+    private final Set<List<Integer>> unchecked = new HashSet<>();
 
     public FastQmc(int bits, Collection<Integer> reqIndices, Collection<Integer> dontCares) {
         this.bits = bits;
@@ -93,7 +96,7 @@ public class FastQmc {
     private List<Set<List<Integer>>> createNewEmptyGroup() {
         List<Set<List<Integer>>> g = new ArrayList<>();
         for (int i = 0; i <= bits - groups.size(); i++) {
-            g.add(Collections.synchronizedSet(new HashSet<>()));
+            g.add(new HashSet<>());
         }
         groups.add(g);
         return g;
@@ -109,10 +112,12 @@ public class FastQmc {
                     prevG.get(firstGroup + 1).parallelStream().forEach(second -> {
                                 List<Integer> combined = combine(first, second);
                                 if (combined != null) {
+                                    lock.lock();
                                     nextG.get(firstGroup).add(combined);
                                     unchecked.add(combined);
                                     unchecked.remove(first);
                                     unchecked.remove(second);
+                                    lock.unlock();
                                 }
                             }
                     )
@@ -121,22 +126,21 @@ public class FastQmc {
     }
 
     private List<Integer> combine(List<Integer> a, List<Integer> b) {
-        List<Integer> c = new ArrayList<>(a);
-        boolean dontCareSet = false;
-
+        int dontCare = -1;
         for (int i = 0; i < a.size(); i++) {
             // nur vergleichen, wenn don't care an gleicher Stelle
             if ((a.get(i) == -1) ^ (b.get(i) == -1))
                 return null;
 
             // don't care setzen, wenn verschieden
-            if (!Objects.equals(a.get(i), b.get(i))) {
-                if (dontCareSet) return null;
-                c.set(i, -1);
-                dontCareSet = true;
+            if (a.get(i) != b.get(i)) {
+                if (dontCare != -1) return null;
+                dontCare = i;
             }
         }
 
+        List<Integer> c = new ArrayList<>(a);
+        c.set(dontCare, -1);
         return c;
     }
 
