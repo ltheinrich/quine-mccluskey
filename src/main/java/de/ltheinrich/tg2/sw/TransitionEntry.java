@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
-import java.util.Collection;
-
 @ToString
 @Builder
 public class TransitionEntry extends Entry {

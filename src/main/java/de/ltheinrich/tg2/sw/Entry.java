@@ -1,9 +1,5 @@
 package de.ltheinrich.tg2.sw;
 
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.ToString;
-
 import java.util.Collection;
 
 public abstract class Entry {
