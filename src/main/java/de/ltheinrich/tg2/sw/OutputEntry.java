@@ -21,7 +21,7 @@ public class OutputEntry extends Entry {
     @NonNull
     private final Integer WriteADR2;
     @NonNull
-    private final Integer WriteOP;
+    private final Integer WriteOP; // wenn aktiviert, wird RAM als Command verwendet, sonst OpReg
     @NonNull
     private final Integer PC_LD; // Ausgabe ist jedoch für !PC_LD
     @NonNull
@@ -30,8 +30,6 @@ public class OutputEntry extends Entry {
     private final Integer PC_UP;
     @NonNull
     private final Integer RegADRtoRAM;
-    @NonNull
-    private final Integer RegOPtoC;
     @NonNull
     private final Integer AluStart;
     @NonNull
