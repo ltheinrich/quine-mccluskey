@@ -163,9 +163,9 @@ public class Assembler {
         data.sort(Comparator.comparing(d -> d.getAdr().getAdr()));
         for (AsmData data : data) {
             while (nextAdr++ != data.getAdr().getAdr()) {
-                System.out.println("adr miss");
+                System.out.println("X");
             }
-            System.out.println(data.getData() == null ? 'X' : Integer.toHexString(data.getData()));
+            System.out.println(Integer.toHexString(data.getData()));
         }
     }
 
