@@ -4,7 +4,6 @@ import de.ltheinrich.tg2.sw.Command;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 public class Assembler {
