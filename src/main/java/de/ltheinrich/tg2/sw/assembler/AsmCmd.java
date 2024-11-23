@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class AsmCmd {
+    private final AsmAdr ownAdr;
     private final Command cmd;
     private final AsmAdr adr;
 }
