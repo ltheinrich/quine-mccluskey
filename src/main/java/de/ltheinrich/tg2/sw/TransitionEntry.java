@@ -47,7 +47,7 @@ public class TransitionEntry extends Entry {
             "D3", "D2", "D1", "D0",
     };
 
-    // WICHTIG! Veränderungen hier auch in SwRunner#inputIndexToName berücksichtigen!
+    // WICHTIG! Veränderungen hier auch in INPUT_NAMES und OUTPUT_NAMES berücksichtigen!
     public int[] getArray() {
         if (arr == null) {
             if (Q.toString().length() != 4 || Command.toString().length() != 4 || Qnext.toString().length() != 4)

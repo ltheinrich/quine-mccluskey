@@ -48,10 +48,10 @@ public class OutputEntry extends Entry {
     private static final String[] OUTPUT_NAMES = new String[]{
             "WriteA", "WriteRAM", "WriteADR1", "WriteADR2", "WriteOP",
             "!PC_LD", "!PC_EN", "PC_UP",
-            "RegADRtoRAM", "RegOPtoC", "AluStart", "SWR",
+            "RegADRtoRAM", "AluStart", "SWR",
     };
 
-    // WICHTIG! Veränderungen hier auch in SwRunner#inputIndexToName berücksichtigen!
+    // WICHTIG! Veränderungen hier auch in INPUT_NAMES und OUTPUT_NAMES berücksichtigen!
     public int[] getArray() {
         if (arr == null) {
             if (Q.toString().length() != 4) throw new IllegalStateException();
