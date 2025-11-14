@@ -41,6 +41,13 @@ public class QmcUtils {
         System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
     }
 
+    public static void printExtractedAndKonjunktion(QmcMinifier mini, int pad, List<String> names) {
+        mini.reqTable.forEach(terms -> {
+            QmcUtils.printTerms(terms, pad, names);
+        });
+        System.out.println("Still required: " + Arrays.toString(mini.reqIndices.toArray()));
+    }
+
     static void printAllIndices(QuineMcCluskey[] qmcs) {
         for (int i = 0; i < qmcs.length; i++) {
             System.out.println(i + ":");
@@ -69,6 +76,13 @@ public class QmcUtils {
         List<Integer> konjunktion = QmcUtils.termsToKonjunktion(terms, pad);
         QmcUtils.printPlain(konjunktion);
         System.out.print("( " + String.join(" ^ ", QmcUtils.konjunktionenToXn(konjunktion)) + " ) ");
+        System.out.println(terms);
+    }
+
+    public static void printTerms(List<Integer> terms, int pad, List<String> names) {
+        List<Integer> konjunktion = QmcUtils.termsToKonjunktion(terms, pad);
+        QmcUtils.printPlain(konjunktion);
+        System.out.print("( " + String.join(" ^ ", QmcUtils.konjunktionenToXn(konjunktion, names)) + " ) ");
         System.out.println(terms);
     }
 
@@ -137,6 +151,18 @@ public class QmcUtils {
                 xn.add("x" + (konjunktion.size() - i - 1));
             } else if (konjunktion.get(i) == 0) {
                 xn.add("!x" + (konjunktion.size() - i - 1));
+            }
+        }
+        return xn;
+    }
+
+    public static List<String> konjunktionenToXn(List<Integer> konjunktion, List<String> names) {
+        List<String> xn = new ArrayList<>();
+        for (int i = 0; i < konjunktion.size(); i++) {
+            if (konjunktion.get(i) == 1) {
+                xn.add(names.get(i));
+            } else if (konjunktion.get(i) == 0) {
+                xn.add("!" + names.get(i));
             }
         }
         return xn;
